@@ -1,0 +1,15 @@
+#%RAML 1.0
+title: AssignmentApi
+
+/assignment:
+  get:
+    headers:
+      Language: string
+      Accept: string
+      TransactionId : number
+
+    responses:
+      200:
+        body:
+          application/json:
+            examples: !include outputExample.raml

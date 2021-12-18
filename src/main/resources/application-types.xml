@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="Emp_List" format="json">
+      <types:shape format="weave" example="examples/emp_details-3.json"><![CDATA[%dw 2.0
+
+type Emp_List = Array<{|  name: String,   mobile: Number {"typeId": "double"},   address: String,   email: String,   date_of_birth: String,   job_title: String,   gender: String|}> {"example": "[{\\\"name\\\":\\\"Venkatesh Gude\\\",\\\"mobile\\\":7330728807,\\\"address\\\":\\\"Guntur Andhra Pradesh\\\",\\\"email\\\":\\\"luckyvenkat84@gmail.com\\\",\\\"date_of_birth\\\":\\\"10-05-1990\\\",\\\"job_title\\\":\\\"Software Engineer\\\",\\\"gender\\\":\\\"Male\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#364569b7-abc0-480d-9deb-473109867d09">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="Emp_List"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

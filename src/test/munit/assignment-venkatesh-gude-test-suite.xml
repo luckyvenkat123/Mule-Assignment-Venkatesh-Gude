@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="assignment-venkatesh-gude-test-suite.xml" />
+	<munit:test name="salesforce-create-new-record-test" doc:id="5d1027d8-8b6e-4216-a09a-ee75705cb9e4" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="3c3246e3-0a16-46e0-8d25-6d4eab7ad05c" >
+				<munit:payload value='[&#10;{&#10;	"name" : "Venky2 Gude",&#10;	"mobile" : "9966007799",&#10;	"address" : "Guntur Andhra Pradesh",&#10;	"email" : "hihello2@gmail.com",&#10;	"job_title" : "Software Engineer",&#10;	"gender" : "Male"&#10;}&#10;]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to assignment-venkatesh-sf_create" doc:id="1fcd9def-a2c6-4163-8edc-cfdf60a11a6c" name="assignment-venkatesh-sf_create"/>
+		</munit:execution>
+		<munit:validation >
+			<logger level="INFO" doc:name="Logger" doc:id="dd5fcdec-8e09-4e1c-8c70-fcf320747cb9" message="#[payload]"/>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="7e3a12b0-aa5d-4013-92a9-49c7fa7f4199" actual="#[payload.successful]" expected='#["true"]'/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

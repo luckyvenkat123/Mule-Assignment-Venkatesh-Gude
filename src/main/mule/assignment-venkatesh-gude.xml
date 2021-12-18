@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c86e9837-5fea-42c4-bf17-3e69f817d8fd">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="d9d07a0a-5917-48c6-ad76-830924e51a1f" >
+		<salesforce:basic-connection username="luckyvenkat5555@gmail.com" password="Rikki#123" securityToken="NIMgbFAr6DMyGfCWSMx49sV2" />
+	</salesforce:sfdc-config>
+	<flow name="assignment-venkatesh-sf_create" doc:id="ee6ea730-3045-4abe-92ca-b1130de2d2da" >
+		<http:listener doc:name="Listener" doc:id="7ab075c2-a760-466a-9d63-a03f110416cd" config-ref="HTTP_Listener_config" path="emp_details"/>
+		<ee:transform doc:name="Transform Message" doc:id="364569b7-abc0-480d-9deb-473109867d09" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map (items, index) -> {
+	Name: items.name,
+	emp_address__c: items.address,
+	emp_phone__c: items.mobile,
+	emp_email__c: items.email,
+	emp_job_title__c: items.job_title,
+	emp_gender__c: items.gender
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="emp_detail__c" doc:name="Create" doc:id="41689e47-10a1-4c65-96de-09f415396e50" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="8b6ea0b7-8e4e-4c49-8790-96c2e55f9434" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="assignment-venkatesh-sf_get" doc:id="73ac017e-a5ec-49a8-82e0-33fca1f21ac4" >
+		<http:listener doc:name="Listener" doc:id="81265491-545a-414d-bba9-9efe7659983e" config-ref="HTTP_Listener_config" path="getrecords"/>
+		<salesforce:query doc:name="Query" doc:id="e268b39c-8811-4a66-8d6b-81bf077c2f82" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT emp_address__c,emp_email__c,emp_gender__c,emp_job_title__c,emp_phone__c,
+LastModifiedDate,Name FROM emp_detail__c WHERE emp_phone__c = ':mobile' or Name = ':name']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	mobile : attributes.queryParams.mobile,
+	name : attributes.queryParams.name
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="b142b77f-7ad1-4476-9016-f9d0bc8f16c9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="assignment-venkatesh-sf_delete" doc:id="8e4ee230-682b-4bb7-9162-c1f2544460b7" >
+		<http:listener doc:name="Listener" doc:id="fd8507cf-2bf3-450f-9ec4-dc355aaa1edb" config-ref="HTTP_Listener_config" path="delete"/>
+		<salesforce:query doc:name="Query" doc:id="f38b6516-9fff-4a90-900d-f33d2c7f086f" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,Name FROM emp_detail__c WHERE Name = ':name']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	name : attributes.queryParams.name
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="77ce7b9a-208c-4fca-8fb9-c3d03288f9ce" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Id : $.Id,
+	Name : $.Name
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:delete doc:name="Delete" doc:id="eeafdf76-b13b-4b51-8e16-8bed289f498f" config-ref="Salesforce_Config">
+			<salesforce:ids ><![CDATA[#[payload.Id]]]></salesforce:ids>
+		</salesforce:delete>
+		<ee:transform doc:name="Transform Message" doc:id="612f5783-c549-401c-b773-00199307d8e2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="assignment-venkatesh-gudeFlow" doc:id="ed9ec2f6-d163-4784-a03b-5fcde4152236" >
+		<http:listener doc:name="Listener" doc:id="2b9093ed-8122-4578-a49e-a8044dcdcabe" config-ref="HTTP_Listener_config" path="upsert"/>
+		<ee:transform doc:name="Transform Message" doc:id="32acde17-fe07-4cf3-8449-2ffec2e94615" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+
+output application/java
+---
+payload map (values, index) -> {
+	Name: values.name,
+	emp_address__c: values.address,
+	emp_phone__c: values.mobile,
+	emp_email__c: values.email,
+	emp_job_title__c: values.job_title,
+	emp_gender__c: values.gender
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert doc:name="Upsert" doc:id="0486fc60-dd92-4bb3-a2b0-431cb85b4cec" config-ref="Salesforce_Config" objectType="emp_detail__c" externalIdFieldName="emp_email__c"/>
+		<ee:transform doc:name="Transform Message" doc:id="be7db99a-b6a4-4744-b6c0-df732844e232" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
